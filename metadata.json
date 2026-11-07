@@ -1,0 +1,6 @@
+{
+  "name": "Orienteck Restaurant & Café",
+  "description": "Authentic oriental cuisine, catering, online food ordering, and table reservations in Stuttgart.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

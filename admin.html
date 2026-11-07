@@ -1,0 +1,1765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#091810">
+<title>OrientEck · Admin Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{--bg:#091710;--panel:#10251a;--panel2:#142d20;--paper:#f7f2e7;--cream:#ede4d2;--gold:#d9b66a;--gold2:#f0d998;--goldDark:#a97a33;--text:#18271d;--muted:#7c877d;--white:#f9f5ea;--line:rgba(217,182,106,.2);--shadow:0 24px 70px rgba(0,0,0,.24);--serif:'Cormorant Garamond',Georgia,serif;--sans:'Hanken Grotesk',Arial,sans-serif}
+*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;background:radial-gradient(900px 520px at 10% -5%,rgba(38,99,64,.22),transparent 65%),var(--bg);font:14px/1.5 var(--sans);color:var(--white);-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}a{color:inherit;text-decoration:none}.hidden{display:none!important}
+
+/* app shell */
+.app{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}.sidebar{height:100vh;position:sticky;top:0;background:rgba(7,19,12,.94);border-right:1px solid rgba(255,255,255,.08);padding:24px 16px;display:flex;flex-direction:column;z-index:40}.side-brand{display:flex;align-items:center;gap:12px;padding:0 9px 24px}.side-brand .brand-mark{width:42px;height:42px;border-radius:14px;flex:none}.brand-mark{width:50px;height:50px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(135deg,#f0d998,#d9b66a 54%,#a97a33);color:#211809;font:700 26px var(--serif);box-shadow:0 10px 25px rgba(217,182,106,.18)}.side-brand strong{display:block;font:600 23px/1 var(--serif);letter-spacing:.02em}.side-brand small{display:block;font-size:9px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-top:5px}.side-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#68796d;padding:8px 12px 10px;font-weight:700}.side-nav{display:grid;gap:5px}.nav-item{display:flex;align-items:center;gap:12px;width:100%;border:1px solid transparent;padding:12px 13px;border-radius:12px;text-align:left;background:transparent;color:rgba(249,245,234,.7);font-weight:600;transition:all .2s}.nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;flex:none}.nav-item:hover{background:rgba(255,255,255,.05);color:var(--white)}.nav-item.active{background:linear-gradient(110deg,rgba(217,182,106,.18),rgba(217,182,106,.05));border-color:rgba(217,182,106,.25);color:var(--gold2)}.nav-item .count{margin-left:auto;min-width:22px;text-align:center;background:rgba(217,182,106,.14);border-radius:30px;padding:2px 7px;font-size:10px;color:var(--gold2);font-weight:700}.nav-item .count.has-new{background:#d9b66a;color:#102319}.side-bottom{margin-top:auto}.server-pill{display:flex;gap:9px;align-items:center;border-top:1px solid rgba(255,255,255,.08);padding:18px 11px;color:#89988d;font-size:11px}.dot{width:7px;height:7px;border-radius:50%;background:#8dd59d;box-shadow:0 0 0 4px rgba(141,213,157,.15);animation:pulse 2s infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(141,213,157,.4)}70%{box-shadow:0 0 0 6px rgba(141,213,157,0)}100%{box-shadow:0 0 0 0 rgba(141,213,157,0)}}.side-bottom .nav-item{margin-bottom:7px}
+.main{min-width:0;min-height:100vh}.mobile-menu{display:none;width:42px;height:42px;border-radius:12px;border:1px solid rgba(217,182,106,.28);background:rgba(16,37,26,.96);color:var(--gold2);box-shadow:0 10px 28px rgba(0,0,0,.22)}.mobile-menu svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}.content{padding:clamp(24px,3.2vw,46px);max-width:1700px;margin:0 auto}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:26px}.page-head h2{margin:0;font:600 clamp(28px,4vw,44px)/.95 var(--serif);letter-spacing:-.03em}.page-head p{margin:9px 0 0;color:#91a095;font-size:12px}.page-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.toolbar-search{width:min(100%,290px);position:relative}.toolbar-search input{padding-left:37px;min-height:42px;background:#102319}.toolbar-search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:#85958a;fill:none;stroke-width:2}
+
+/* Buttons and inputs */
+.primary{border:1px solid transparent;border-radius:11px;min-height:44px;padding:11px 17px;background:linear-gradient(135deg,#f0d998,#d9b66a 55%,#a97a33);color:#211809;font-weight:700;box-shadow:0 10px 24px rgba(217,182,106,.15);transition:transform .2s,filter .2s;display:inline-flex;align-items:center;justify-content:center;gap:6px}.primary:hover{transform:translateY(-1px);filter:brightness(1.05)}.primary:disabled{opacity:.5;cursor:not-allowed}.secondary{min-height:42px;border:1px solid rgba(217,182,106,.35);border-radius:11px;padding:10px 14px;background:rgba(217,182,106,.07);color:var(--gold2);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}.secondary:hover{background:rgba(217,182,106,.15)}.danger{border:1px solid rgba(227,118,101,.35);background:rgba(171,63,49,.15);color:#ffb7a9;border-radius:10px;padding:8px 11px;font-weight:600}.field{display:grid;gap:7px;margin-bottom:15px}.field label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8f9c91}.field input,.field select,.field textarea,.toolbar-search input{width:100%;min-height:46px;padding:12px 14px;background:#0b1b12;border:1px solid rgba(255,255,255,.13);border-radius:11px;color:var(--white);outline:none}.field textarea{min-height:100px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(217,182,106,.75);box-shadow:0 0 0 3px rgba(217,182,106,.1)}
+
+/* Cards and tables */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:25px}.stat{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(21,48,32,.9),rgba(13,31,21,.96));border:1px solid rgba(217,182,106,.18);border-radius:18px;padding:21px;min-height:140px;cursor:pointer;transition:transform .2s,border-color .2s}.stat:hover{transform:translateY(-2px);border-color:rgba(217,182,106,.45)}.stat:after{content:"";position:absolute;right:-25px;top:-34px;width:110px;height:110px;border:1px solid rgba(217,182,106,.15);border-radius:50%;box-shadow:0 0 0 20px rgba(217,182,106,.025),0 0 0 40px rgba(217,182,106,.018)}.stat-top{display:flex;justify-content:space-between;align-items:center;color:#9ca99e;font-size:11px;font-weight:600;gap:8px}.stat-icon{width:36px;height:36px;border-radius:11px;background:rgba(217,182,106,.12);display:grid;place-items:center;color:var(--gold2)}.stat-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}.stat-number{font:600 clamp(32px,4vw,42px)/1 var(--serif);margin-top:16px}.stat-note{font-size:10px;color:#819185;margin-top:8px;display:flex;align-items:center;gap:6px}.grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:25px}.panel{min-width:0;background:rgba(16,37,26,.88);border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;margin-bottom:24px}.panel-head{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid rgba(255,255,255,.07)}.panel-head h3{margin:0;font:600 24px/1 var(--serif)}.panel-head p{margin:5px 0 0;color:#819186;font-size:11px}.link-btn{border:0;background:transparent;color:var(--gold2);font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;padding:4px 8px;border-radius:6px}.link-btn:hover{background:rgba(217,182,106,.1)}.panel-body{padding:18px 22px}.table-wrap{overflow-x:auto}.data-table{width:100%;border-collapse:collapse;min-width:650px}.data-table th{text-align:left;padding:13px 16px;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:#7f8f83;border-bottom:1px solid rgba(255,255,255,.07);white-space:nowrap}.data-table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.055);font-size:12px;vertical-align:middle}.data-table tr:last-child td{border-bottom:0}.data-table tbody tr:hover{background:rgba(255,255,255,.025)}.dish-cell{display:flex;align-items:center;gap:11px;min-width:200px}.dish-thumb{width:42px;height:42px;border-radius:12px;background:#1f3d2b;object-fit:cover;display:grid;place-items:center;overflow:hidden;flex:none;color:var(--gold2)}.dish-thumb img{width:100%;height:100%;object-fit:cover}.dish-cell strong{display:block;font-size:12px;color:#f4efdf}.dish-cell small{display:block;font-size:10px;color:#849286;margin-top:4px}.money{font-weight:700;white-space:nowrap;color:var(--gold2)}.muted{color:#8b9a8f}.empty{padding:43px 18px;text-align:center;color:#8b9a8f}.empty strong{display:block;color:var(--white);font:600 27px var(--serif);margin-bottom:8px}.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:30px;font-size:10px;font-weight:700;white-space:nowrap;background:rgba(217,182,106,.1);color:var(--gold2);border:1px solid rgba(217,182,106,.15)}.badge.green{background:rgba(66,156,92,.15);border-color:rgba(116,204,137,.25);color:#9de0aa}.badge.red{background:rgba(193,76,60,.15);border-color:rgba(238,128,111,.25);color:#ffb4a6}.badge.gray{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);color:#a0aaa2}.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.icon-btn{height:33px;width:33px;display:grid;place-items:center;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#cdd5cb}.icon-btn:hover{border-color:var(--line);color:var(--gold2)}.icon-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8}.status-select{min-height:34px;padding:6px 24px 6px 9px;background:#0d1f14;color:#e6ebdf;border:1px solid rgba(217,182,106,.3);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer}.status-select:focus{border-color:var(--gold2)}.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.065)}.filter-row{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;max-width:100%}.filter-chip{flex:none;border:1px solid rgba(255,255,255,.1);border-radius:30px;padding:8px 12px;background:transparent;color:#a8b2a8;font-size:10px;font-weight:600}.filter-chip.active,.filter-chip:hover{background:rgba(217,182,106,.15);border-color:rgba(217,182,106,.4);color:var(--gold2)}.table-foot{padding:13px 20px;color:#7c8b80;border-top:1px solid rgba(255,255,255,.05);font-size:10px}
+
+/* form and modal */
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.field.full{grid-column:1/-1}.field .hint{font-size:10px;color:#89978b}.check-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;color:#d2dacf;font-size:12px}.check-row input{accent-color:var(--gold);width:16px;height:16px;margin:2px 0 0}.image-preview{width:100%;height:145px;display:grid;place-items:center;border-radius:14px;background:#0b1b12;border:1px dashed rgba(217,182,106,.25);overflow:hidden;color:#7f8e83}.image-preview img{width:100%;height:100%;object-fit:cover}
+.image-gallery-wrap{display:flex;flex-direction:column;gap:10px}
+.image-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;empty-cells:hide}
+.image-gallery-item{position:relative;height:96px;border-radius:12px;overflow:hidden;background:#0b1b12;border:1px solid rgba(255,255,255,.12);box-shadow:0 3px 10px rgba(0,0,0,.3);transition:border-color .2s}
+.image-gallery-item.is-cover{border:2px solid var(--gold2)}
+.image-gallery-item img{width:100%;height:100%;object-fit:cover;display:block}
+.image-gallery-item .cover-badge{position:absolute;top:5px;left:5px;background:rgba(217,182,106,.95);color:#0e1e14;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.04em;pointer-events:none;box-shadow:0 2px 5px rgba(0,0,0,.5)}
+.image-gallery-item .make-cover-btn{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.78);color:#f4efdf;font-size:9px;font-weight:600;padding:4px 2px;border:0;cursor:pointer;text-align:center;transition:background .2s}
+.image-gallery-item .make-cover-btn:hover{background:rgba(217,182,106,.95);color:#0e1e14}
+.image-gallery-item .del-img-btn{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.78);color:#fff;border:0;cursor:pointer;font-size:11px;display:grid;place-items:center;line-height:1;transition:background .2s}
+.image-gallery-item .del-img-btn:hover{background:#c14c3c}
+.gallery-upload-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;border-radius:12px;background:#0c1e13;border:1px dashed rgba(217,182,106,.4);color:var(--gold2);cursor:pointer;text-align:center;transition:all .2s}
+.gallery-upload-btn:hover{background:rgba(217,182,106,.12);border-color:var(--gold2)}
+.gallery-upload-btn svg{width:22px;height:22px;stroke:currentColor}
+.gallery-upload-btn span{font-size:12px;font-weight:700}
+.gallery-upload-btn small{font-size:10px;color:#89978b}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:100;display:grid;place-items:center;padding:20px}.modal{width:min(100%,720px);max-height:min(92vh,900px);overflow:auto;background:#10251a;border:1px solid rgba(217,182,106,.3);border-radius:20px;box-shadow:0 35px 90px rgba(0,0,0,.6)}.modal-head{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 24px;background:rgba(16,37,26,.97);border-bottom:1px solid rgba(255,255,255,.08)}.modal-head h3{margin:0;font:600 28px/1 var(--serif)}.eyebrow{color:var(--gold2);letter-spacing:.18em;text-transform:uppercase;font-size:10px;font-weight:700}.close{width:34px;height:34px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.04);color:white;border-radius:10px}.modal-form{padding:23px 24px}.modal-actions{position:sticky;bottom:0;padding:15px 24px;background:rgba(16,37,26,.97);border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;gap:12px}.modal-actions>div{display:flex;gap:8px}.toast{position:fixed;right:24px;bottom:24px;z-index:200;max-width:min(440px,calc(100vw - 32px));padding:14px 18px;border-radius:12px;background:#f7f2e7;color:#14251a;font-weight:700;box-shadow:0 15px 40px rgba(0,0,0,.35);opacity:0;transform:translateY(14px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}.toast.error{background:#ffe3dc;color:#782d23}.note-box{border:1px solid rgba(217,182,106,.16);background:rgba(217,182,106,.045);border-radius:13px;padding:15px;color:#a9b3a7;font-size:11px;line-height:1.7}.note-box strong{color:var(--gold2)}
+.simple-list{display:grid}.simple-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}.simple-row:last-child{border:0}.simple-icon{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;flex:none;background:rgba(217,182,106,.09);color:var(--gold2)}.simple-icon svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7}.simple-main{min-width:0;flex:1}.simple-main strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.simple-main small{display:block;color:#819186;font-size:10px;margin-top:4px}
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px}
+.quick-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px}
+
+.mobile-refresh-btn{display:none;width:42px;height:42px;border-radius:12px;border:1px solid rgba(217,182,106,.32);background:rgba(16,37,26,.96);color:var(--gold2);box-shadow:0 10px 28px rgba(0,0,0,.22);align-items:center;justify-content:center;cursor:pointer;transition:all .2s ease;user-select:none}
+.mobile-refresh-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s ease}
+.mobile-refresh-btn:hover{background:rgba(217,182,106,.16);border-color:var(--gold2);transform:scale(1.04)}
+.mobile-refresh-btn:active{transform:scale(.95)}
+
+.btn-refresh{min-height:42px;border:1px solid rgba(217,182,106,.38);border-radius:11px;padding:10px 16px;background:rgba(217,182,106,.09);color:var(--gold2);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:all .2s ease;user-select:none;white-space:nowrap}
+.btn-refresh svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex:none;transition:transform .2s ease}
+.btn-refresh:hover{background:rgba(217,182,106,.18);border-color:var(--gold2);transform:translateY(-1px)}
+.btn-refresh:active{transform:scale(.97)}
+
+@keyframes spinRefresh{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.is-refreshing svg{animation:spinRefresh .75s linear infinite !important}
+.btn-refresh.is-refreshing,.mobile-refresh-btn.is-refreshing{opacity:.85;pointer-events:none}
+
+@media(max-width:1100px){.app{grid-template-columns:220px minmax(0,1fr)}.sidebar{padding-inline:12px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-two{grid-template-columns:1fr}.content{padding:24px}.stat{min-height:130px}}
+@media(max-width:760px){.mobile-refresh-btn{display:grid!important;place-items:center!important;position:fixed!important;top:14px!important;right:14px!important;z-index:60!important}.app{display:block}.sidebar{position:fixed;left:0;top:0;bottom:0;width:min(290px,86vw);height:100dvh;transform:translateX(-105%);transition:transform .25s;box-shadow:var(--shadow)}.app.nav-open .sidebar{transform:none}.app.nav-open:after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30}.mobile-menu{display:grid;place-items:center;position:fixed;top:14px;left:14px;z-index:60}.content{padding:72px 14px 36px}.page-head{align-items:stretch!important;flex-direction:column!important;margin-bottom:20px;gap:14px}.page-actions{width:100%!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important;align-items:stretch!important}.page-actions .btn-refresh,.page-actions .secondary,.page-actions .primary{flex:1 1 auto!important;min-width:130px!important;min-height:44px!important;padding:11px 16px!important;font-size:13px!important;justify-content:center!important;text-align:center!important}.toolbar-search{width:100%;flex:1}.stats{gap:10px}.stat{padding:16px;min-height:115px;border-radius:15px}.stat-number{font-size:32px;margin-top:12px}.stat-top{font-size:10px}.stat-icon{width:30px;height:30px}.panel-head{padding:16px}.panel-body{padding:14px 16px}.toolbar{padding:14px;align-items:flex-start}.filter-row{width:100%}.data-table{min-width:660px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.modal-backdrop{padding:8px;align-items:end}.modal{max-height:94dvh;border-radius:20px 20px 13px 13px}.modal-head,.modal-form{padding:18px}.modal-actions{padding:13px 18px}}
+</style>
+</head>
+<body>
+<div class="app" id="appShell">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><div class="brand-mark">O</div><div><strong>OrientEck</strong><small>Admin workspace</small></div></div>
+    <div class="side-label">Workspace Menu</div>
+    <nav class="side-nav" id="sideNav">
+      <button class="nav-item active" data-section="dashboard">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        Overview & Activity
+      </button>
+      <button class="nav-item" data-section="orders">
+        <svg viewBox="0 0 24 24"><path d="M5 7h14l1 13H4L5 7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        Orders<span class="count" id="orderCount">0</span>
+      </button>
+      <button class="nav-item" data-section="reservations">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h6"/></svg>
+        Reservations<span class="count" id="reservationCount">0</span>
+      </button>
+      <button class="nav-item" data-section="messages">
+        <svg viewBox="0 0 24 24"><path d="M4 5h16v12H8l-4 3z"/><path d="M8 9h8M8 13h5"/></svg>
+        Messages<span class="count" id="messageCount">0</span>
+      </button>
+      <button class="nav-item" data-section="menu">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+        Food Catalogue<span class="count" id="menuCount">0</span>
+      </button>
+      <button class="nav-item" data-section="foodadd">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>
+        Add Food & Cat
+      </button>
+    </nav>
+    <div class="side-bottom">
+      <button class="nav-item" id="sidebarRefreshBtn" type="button" style="color:var(--gold2);margin-bottom:8px">
+        <svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg>
+        Sync Database
+      </button>
+      <a href="./" target="_blank" class="nav-item" style="color:var(--gold2);margin-bottom:8px">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Live Customer Site ↗
+      </a>
+      <div class="server-pill"><i class="dot"></i><span id="liveStatusText">Connecting to Supabase…</span></div>
+    </div>
+  </aside>
+  <main class="main">
+    <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Open navigation" title="Open navigation">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <button class="mobile-refresh-btn" id="mobileRefreshBtn" type="button" aria-label="Refresh workspace data" title="Refresh workspace data">
+      <svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg>
+    </button>
+    <div class="content" id="mainContent"></div>
+  </main>
+</div>
+<div class="modal-backdrop hidden" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  const state={section:'dashboard',menu:[],orders:[],reservations:[],messages:[],query:'',filter:'all',modalImage:'',toastTimer:null};
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money=v=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(v)||0);
+  const date=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(+d)?esc(v):d.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});};
+  const slug=v=>String(v||'other').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'other';
+
+  /* ================================================================
+     AUDIO CHIME ALERT SYNTHESIZER
+  ================================================================= */
+  let audioCtx = null;
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        audioCtx = new AudioCtx();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+    return audioCtx;
+  }
+
+  const unlockAudio = () => {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+  };
+  ['click', 'touchstart', 'keydown'].forEach(evt => {
+    document.addEventListener(evt, unlockAudio, { passive: true });
+  });
+
+  function playChime() {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.38);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    } catch(e) {
+      console.warn('Audio chime notice:', e);
+    }
+  }
+
+  /* ================================================================
+     SUPABASE CONNECTION CONFIGURATION
+     Shared with public customer-facing food ordering website
+  ================================================================= */
+  const SUPABASE_CONFIG = {
+    url: 'https://azabnrdnvauuooxwbiyb.supabase.co',
+    anonKey: 'sb_publishable_WuB6c8IKpD3cia-Pt0cqcA_kxlyW-Ud',
+    schema: 'public',
+    tables: {
+      menu: 'food_items',
+      orders: 'orders',
+      reservations: 'reservations',
+      messages: 'messages'
+    },
+    columns: {
+      menu: {
+        id: 'id', name: 'name', category: 'category_name', categoryId: 'category_id',
+        description: 'description', price: 'price', quantity: null,
+        available: 'is_available', visible: null, image: 'image_url',
+        sortOrder: 'sort_order', payment: null, variants: 'variants'
+      },
+      orders: { id: 'id', status: 'status' },
+      reservations: { id: 'id', status: 'status' },
+      messages: { id: 'id', status: 'status' }
+    },
+    storageBucket: 'food-images',
+    realtime: true,
+    pollingFallbackMs: 8000
+  };
+
+  let supabaseClient = null;
+  let liveChannel = null;
+  let fallbackTimer = null;
+  let lastLoadErrors = '';
+
+  function getSupabase() {
+    if (supabaseClient) return supabaseClient;
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+      throw new Error('Supabase SDK could not load. Check your internet/CDN connection.');
+    }
+    supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
+      db: { schema: SUPABASE_CONFIG.schema || 'public' },
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    });
+    return supabaseClient;
+  }
+
+  const TABLES = SUPABASE_CONFIG.tables;
+  const COLS = SUPABASE_CONFIG.columns;
+  const pick = (row, keys, fallback = '') => {
+    for (const key of keys) {
+      if (!key) continue;
+      const value = key.split('.').reduce((obj, part) => obj == null ? undefined : obj[part], row);
+      if (value !== undefined && value !== null && value !== '') return value;
+    }
+    return fallback;
+  };
+  const asArray = value => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') { try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? parsed : []; } catch {} }
+    return [];
+  };
+  const sortNewest = rows => rows.sort((a,b) => {
+    const av = new Date(a.createdAt || a.created_at || a.updatedAt || 0).getTime() || 0;
+    const bv = new Date(b.createdAt || b.created_at || b.updatedAt || 0).getTime() || 0;
+    return bv - av;
+  });
+
+  function normalizeRow(kind, row) {
+    const raw = row || {};
+    if (kind === 'orders') {
+      return { ...raw,
+        id: pick(raw, [COLS.orders.id, 'id', 'uuid', 'order_id', 'order_number', 'order_no']),
+        nr: pick(raw, ['order_number', 'nr', 'order_no', 'orderNumber', 'tracking_number']),
+        orderNumber: pick(raw, ['order_number', 'order_no', 'orderNumber', 'nr']),
+        name: pick(raw, ['customer_name', 'name', 'full_name', 'customer', 'client_name']),
+        phone: pick(raw, ['phone', 'customer_phone', 'phone_number', 'mobile']),
+        address: pick(raw, ['address', 'delivery_address', 'shipping_address']),
+        items: asArray(pick(raw, ['items', 'order_items', 'cart_items', 'products'], [])),
+        total: Number(pick(raw, ['total', 'total_amount', 'grand_total', 'amount'], 0)) || 0,
+        payment: pick(raw, ['payment_method', 'payment', 'payment_type'], 'Cash on delivery'),
+        status: pick(raw, [COLS.orders.status, 'status', 'order_status'], 'New'),
+        note: pick(raw, ['note', 'notes', 'order_note', 'special_instructions']),
+        createdAt: pick(raw, ['created_at', 'createdAt', 'order_date', 'submitted_at', 'timestamp'])
+      };
+    }
+    if (kind === 'reservations') {
+      return { ...raw,
+        id: pick(raw, [COLS.reservations.id, 'id', 'uuid', 'reservation_id']),
+        name: pick(raw, ['customer_name', 'name', 'guest_name', 'full_name']),
+        email: pick(raw, ['email', 'guest_email', 'customer_email']),
+        phone: pick(raw, ['phone', 'guest_phone', 'phone_number']),
+        guests: pick(raw, ['guests', 'guest_count', 'number_of_guests', 'party_size'], 2),
+        date: pick(raw, ['reservation_date', 'date', 'booking_date']),
+        time: pick(raw, ['reservation_time', 'time', 'booking_time']),
+        notes: pick(raw, ['notes', 'special_requests', 'request', 'message']),
+        status: pick(raw, [COLS.reservations.status, 'status'], 'New'),
+        createdAt: pick(raw, ['created_at', 'createdAt', 'submitted_at', 'timestamp'])
+      };
+    }
+    if (kind === 'messages') {
+      const combinedName = pick(raw, ['customer_name', 'name', 'full_name', 'sender_name']);
+      const firstName = pick(raw, ['firstName', 'first_name'], combinedName.split(' ')[0] || '');
+      const lastName = pick(raw, ['lastName', 'last_name'], combinedName.split(' ').slice(1).join(' '));
+      return { ...raw,
+        id: pick(raw, [COLS.messages.id, 'id', 'uuid', 'message_id']),
+        firstName, lastName,
+        email: pick(raw, ['email', 'sender_email', 'customer_email']),
+        phone: pick(raw, ['phone', 'phone_number']),
+        subject: pick(raw, ['subject', 'topic'], 'Website inquiry'),
+        message: pick(raw, ['message', 'body', 'content', 'message_text']),
+        status: pick(raw, [COLS.messages.status, 'status', 'read_status'], 'New'),
+        createdAt: pick(raw, ['created_at', 'createdAt', 'received_at', 'submitted_at', 'timestamp'])
+      };
+    }
+    const menuCols = COLS.menu;
+    const rawImg = pick(raw, [menuCols.image, 'image_url', 'image', 'photo_url']);
+    let imagesList = [];
+    if (typeof rawImg === 'string' && rawImg.trim().startsWith('[')) {
+      try {
+        const arr = JSON.parse(rawImg);
+        if (Array.isArray(arr) && arr.length > 0) imagesList = arr;
+      } catch (e) {
+        imagesList = rawImg ? [rawImg] : [];
+      }
+    } else if (rawImg) {
+      imagesList = [rawImg];
+    }
+    const primaryImg = imagesList[0] || '';
+    return { ...raw,
+      id: pick(raw, [menuCols.id, 'id', 'uuid', 'food_id']),
+      name: pick(raw, [menuCols.name, 'name', 'title', 'food_name']),
+      category: pick(raw, [menuCols.category, 'category_name', 'category'], 'Other'),
+      categoryId: pick(raw, [menuCols.categoryId, 'category_id'], slug(pick(raw, ['category_name', 'category'], 'Other'))),
+      description: pick(raw, [menuCols.description, 'description', 'details']),
+      price: Number(pick(raw, [menuCols.price, 'price', 'unit_price'], 0)) || 0,
+      quantity: Number(pick(raw, ['quantity', 'stock', 'stock_quantity'], 50)) || 50,
+      available: pick(raw, [menuCols.available, 'is_available', 'available'], true) !== false,
+      visible: pick(raw, ['is_visible', 'visible', 'published'], true) !== false,
+      image: primaryImg,
+      imageUrl: primaryImg,
+      images: imagesList,
+      sortOrder: Number(pick(raw, [menuCols.sortOrder, 'sort_order', 'sortOrder', 'position'], 0)) || 0,
+      payment: pick(raw, ['payment_method', 'payment'], 'Cash on delivery'),
+      variants: asArray(pick(raw, [menuCols.variants, 'variants'], [])),
+      updatedAt: pick(raw, ['updated_at', 'updatedAt'])
+    };
+  }
+
+  async function selectRows(kind) {
+    const client = getSupabase();
+    const table = TABLES[kind];
+    if (!table) throw new Error(`Supabase table is not configured for ${kind}.`);
+    const { data, error } = await client.from(table).select('*');
+    if (error) throw new Error(`${table}: ${error.message}`);
+    return sortNewest((data || []).map(row => normalizeRow(kind, row)));
+  }
+
+  async function uploadFoodImage(imageValue) {
+    if (!imageValue || !String(imageValue).startsWith('data:')) return imageValue || '';
+    const client = getSupabase();
+    try {
+      const blob = await (await fetch(imageValue)).blob();
+      const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+      const path = `food/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await client.storage.from(SUPABASE_CONFIG.storageBucket).upload(path, blob, {
+        cacheControl: '3600', upsert: false, contentType: blob.type || 'image/jpeg'
+      });
+      if (error) {
+        console.warn('Storage upload notice, falling back to data URL:', error.message);
+        return imageValue;
+      }
+      const { data } = client.storage.from(SUPABASE_CONFIG.storageBucket).getPublicUrl(path);
+      return data?.publicUrl || imageValue;
+    } catch(e) {
+      console.warn('Image process notice:', e);
+      return imageValue;
+    }
+  }
+
+  function foodToDatabaseRow(food) {
+    const isUuid = v => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(v || ''));
+    const c = COLS.menu;
+    let imageValue = '';
+    if (Array.isArray(food.images) && food.images.length > 0) {
+      imageValue = food.images.length === 1 ? food.images[0] : JSON.stringify(food.images);
+    } else if (food.image) {
+      imageValue = food.image;
+    }
+    const pairs = {
+      id: food.id,
+      name: food.name,
+      category: food.category,
+      categoryId: isUuid(food.categoryId) ? food.categoryId : null,
+      description: food.description || '',
+      price: Number(food.price) || 0,
+      available: food.available !== false,
+      image: imageValue,
+      sortOrder: Number(food.sortOrder) || 0,
+      variants: Array.isArray(food.variants) ? food.variants : []
+    };
+    const output = {};
+    for (const [key, value] of Object.entries(pairs)) {
+      const column = c[key];
+      if (column && value !== undefined) output[column] = value;
+    }
+    return output;
+  }
+
+  async function saveFoodToSupabase(food) {
+    const client = getSupabase();
+    let image = food.image || '';
+    if (image && image.startsWith('data:')) {
+      try { image = await uploadFoodImage(image); } catch(e) {}
+    }
+    const payload = { ...food, image };
+    const row = foodToDatabaseRow(payload);
+    const idColumn = COLS.menu.id || 'id';
+    let result;
+    if (food.id && !String(food.id).startsWith('seed_')) {
+      delete row[idColumn];
+      result = await client.from(TABLES.menu).update({ ...row, updated_at: new Date().toISOString() }).eq(idColumn, food.id).select('*').maybeSingle();
+    } else {
+      delete row[idColumn];
+      result = await client.from(TABLES.menu).insert([row]).select('*').single();
+    }
+    if (result.error) throw new Error(`Saving food failed: ${result.error.message}`);
+    if (food.id && !result.data) throw new Error('Food update matched no row. Check the ID and Supabase RLS policies.');
+    return result.data ? normalizeRow('menu', result.data) : null;
+  }
+
+  async function updateSupabaseStatus(kind, id, status) {
+    const client = getSupabase();
+    const cols = COLS[kind] || {};
+    if (!cols.id || !cols.status) throw new Error(`Configure the ID and status columns for the ${kind} table.`);
+    const { data, error } = await client.from(TABLES[kind]).update({ [cols.status]: status, updated_at: new Date().toISOString() })
+      .eq(cols.id, id).select('*').maybeSingle();
+    if (error) throw new Error(`Status update failed: ${error.message}`);
+    if (!data) throw new Error('No matching record was updated. Check the record ID and Supabase RLS UPDATE policy.');
+    return data;
+  }
+
+  async function api(url, opts = {}) {
+    const method = (opts.method || 'GET').toUpperCase();
+    const cleanUrl = url.split('?')[0];
+    const body = typeof opts.body === 'string' ? JSON.parse(opts.body) : (opts.body || {});
+    if (method === 'GET') {
+      if (cleanUrl === '/api/menu') return selectRows('menu');
+      if (cleanUrl === '/api/orders') return selectRows('orders');
+      if (cleanUrl === '/api/reservations') return selectRows('reservations');
+      if (cleanUrl === '/api/messages') return selectRows('messages');
+    }
+    if (method === 'POST' && cleanUrl === '/api/admin/menu') return saveFoodToSupabase(body);
+    if (method === 'DELETE' && cleanUrl.startsWith('/api/admin/menu/')) {
+      const id = decodeURIComponent(cleanUrl.slice('/api/admin/menu/'.length));
+      const { error, count } = await getSupabase().from(TABLES.menu).delete({ count: 'exact' }).eq(COLS.menu.id || 'id', id);
+      if (error) throw new Error(`Food delete failed: ${error.message}`);
+      return { ok: true, count };
+    }
+    const statusMatch = cleanUrl.match(/^\/api\/admin\/(orders|reservations|messages)\/([^/]+)$/);
+    if ((method === 'PATCH' || method === 'POST') && statusMatch) {
+      const kind = statusMatch[1];
+      const id = decodeURIComponent(statusMatch[2]);
+      return updateSupabaseStatus(kind, id, body.status);
+    }
+    if (method === 'DELETE' && statusMatch) {
+      const kind = statusMatch[1];
+      const id = decodeURIComponent(statusMatch[2]);
+      const table = TABLES[kind];
+      const idCol = COLS[kind]?.id || 'id';
+      const { error, count } = await getSupabase().from(table).delete({ count: 'exact' }).eq(idCol, id);
+      if (error) throw new Error(`${kind} delete failed: ${error.message}`);
+      return { ok: true, count };
+    }
+    throw new Error(`Unsupported database action: ${method} ${cleanUrl}`);
+  }
+
+  function toast(message, error = false) {
+    const box = $('#toast');
+    if (!box) return;
+    box.textContent = message;
+    box.classList.toggle('error', error);
+    box.classList.add('show');
+    clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(() => box.classList.remove('show'), 4200);
+  }
+
+  function badge(status) {
+    const s = String(status || 'New');
+    let tone = '';
+    if (['Available', 'Delivered', 'Confirmed', 'Completed', 'Read', 'Replied'].includes(s)) tone = 'green';
+    else if (['Unavailable', 'Cancelled', 'Declined', 'Archived'].includes(s)) tone = 'red';
+    else if (['New', 'Preparing', 'Out for delivery', 'Pending'].includes(s)) tone = '';
+    else tone = 'gray';
+    return `<span class="badge ${tone}">${esc(s)}</span>`;
+  }
+
+  function iconThumb(p) {
+    return p.image ? `<div class="dish-thumb"><img src="${esc(p.image)}" alt="" onerror="this.parentElement.textContent='✦'"></div>` : '<div class="dish-thumb">✦</div>';
+  }
+
+  function updateBadges() {
+    const newOrders = (state.orders || []).filter(x => ['New', 'Pending', 'Preparing'].includes(x.status)).length;
+    const newRes = (state.reservations || []).filter(x => ['New', 'Pending'].includes(x.status)).length;
+    const newMsgs = (state.messages || []).filter(x => ['New', 'Pending', 'unread'].includes(x.status)).length;
+
+    const ordBadge = $('#orderCount');
+    if (ordBadge) { ordBadge.textContent = newOrders; ordBadge.classList.toggle('has-new', newOrders > 0); }
+    const resBadge = $('#reservationCount');
+    if (resBadge) { resBadge.textContent = newRes; resBadge.classList.toggle('has-new', newRes > 0); }
+    const msgBadge = $('#messageCount');
+    if (msgBadge) { msgBadge.textContent = newMsgs; msgBadge.classList.toggle('has-new', newMsgs > 0); }
+    const menuBadge = $('#menuCount');
+    if (menuBadge) { menuBadge.textContent = (state.menu || []).length; }
+  }
+
+  const knownOrderIds = new Set();
+  const knownResIds = new Set();
+  const knownMsgIds = new Set();
+  let initialOrderLoaded = false;
+  let initialResLoaded = false;
+  let initialMsgLoaded = false;
+
+  function processIncomingOrders(orders, isInitial = false) {
+    if (!Array.isArray(orders)) return;
+    state.orders = orders;
+    updateBadges();
+
+    if (isInitial || !initialOrderLoaded) {
+      orders.forEach(o => knownOrderIds.add(String(o.id)));
+      initialOrderLoaded = true;
+    } else {
+      const newOrders = orders.filter(o => !knownOrderIds.has(String(o.id)));
+      if (newOrders.length > 0) {
+        playChime();
+        const newest = newOrders[0];
+        toast(`🔔 New Order #${newest?.nr || newest?.orderNumber || ''} received from ${newest?.name || 'Customer'}!`);
+        newOrders.forEach(o => knownOrderIds.add(String(o.id)));
+      }
+    }
+    renderActiveSection(true);
+  }
+
+  function processIncomingReservations(reservations, isInitial = false) {
+    if (!Array.isArray(reservations)) return;
+    state.reservations = reservations;
+    updateBadges();
+
+    if (isInitial || !initialResLoaded) {
+      reservations.forEach(r => knownResIds.add(String(r.id)));
+      initialResLoaded = true;
+    } else {
+      const newRes = reservations.filter(r => !knownResIds.has(String(r.id)));
+      if (newRes.length > 0) {
+        playChime();
+        const newest = newRes[0];
+        toast(`🔔 New table booking from ${newest?.name || 'Guest'} (${newest?.guests || '2'} guests)!`);
+        newRes.forEach(r => knownResIds.add(String(r.id)));
+      }
+    }
+    renderActiveSection(true);
+  }
+
+  function processIncomingMessages(messages, isInitial = false) {
+    if (!Array.isArray(messages)) return;
+    state.messages = messages;
+    updateBadges();
+
+    if (isInitial || !initialMsgLoaded) {
+      messages.forEach(m => knownMsgIds.add(String(m.id)));
+      initialMsgLoaded = true;
+    } else {
+      const newMsgs = messages.filter(m => !knownMsgIds.has(String(m.id)));
+      if (newMsgs.length > 0) {
+        playChime();
+        const newest = newMsgs[0];
+        toast(`🔔 New contact inquiry from ${newest?.firstName || 'Customer'}: "${newest?.subject || ''}"`);
+        newMsgs.forEach(m => knownMsgIds.add(String(m.id)));
+      }
+    }
+    renderActiveSection(true);
+  }
+
+  function processIncomingDishes(dishes) {
+    if (!Array.isArray(dishes)) return;
+    state.menu = dishes;
+    updateBadges();
+    if (state.section === 'menu' && !$('#modalBackdrop:not(.hidden)')) {
+      renderMenu(true);
+    } else if (state.section === 'dashboard') {
+      renderDashboard(true);
+    }
+  }
+
+  async function enterApp() {
+    await renderSection(state.section || 'dashboard');
+
+    try {
+      getSupabase();
+      await loadAll(true);
+      setupSupabaseRealtimeListeners();
+      initLiveSync();
+    } catch (err) {
+      console.error('Supabase startup failed; keeping dashboard active:', err);
+      const statusPill = $('#liveStatusText');
+      if (statusPill) statusPill.textContent = 'Database connection unavailable';
+      toast(err.message || 'Supabase connection failed. Check project URL and anon key.', true);
+    }
+  }
+
+  async function loadAll(isInitial = false) {
+    const kinds = ['menu', 'orders', 'reservations', 'messages'];
+    const results = await Promise.allSettled(kinds.map(kind => selectRows(kind)));
+    const errors = [];
+    results.forEach((result, index) => {
+      const kind = kinds[index];
+      if (result.status === 'fulfilled') {
+        if (kind === 'menu') processIncomingDishes(result.value);
+        else if (kind === 'orders') processIncomingOrders(result.value, isInitial);
+        else if (kind === 'reservations') processIncomingReservations(result.value, isInitial);
+        else processIncomingMessages(result.value, isInitial);
+      } else {
+        errors.push(`${TABLES[kind]}: ${result.reason?.message || 'Could not load records'}`);
+        console.error(`Supabase ${kind} load failed:`, result.reason);
+      }
+    });
+    updateBadges();
+    const statusPill = $('#liveStatusText');
+    if (errors.length) {
+      lastLoadErrors = errors.join(' | ');
+      if (statusPill) statusPill.textContent = 'Supabase connection needs attention';
+      if (isInitial || lastLoadErrors !== state._shownLoadErrors) {
+        toast(`Supabase data load issue: ${errors[0]}`, true);
+        state._shownLoadErrors = lastLoadErrors;
+      }
+    } else {
+      lastLoadErrors = '';
+      if (statusPill) statusPill.textContent = 'Supabase live sync connected';
+      state._shownLoadErrors = '';
+    }
+    return { errors };
+  }
+
+  function renderActiveSection(isSilent = false) {
+    if (state.section === 'dashboard') renderDashboard(isSilent);
+    else if (state.section === 'orders') renderOrders(isSilent);
+    else if (state.section === 'reservations') renderReservations(isSilent);
+    else if (state.section === 'messages') renderMessages(isSilent);
+    else if (state.section === 'menu' && !$('#modalBackdrop:not(.hidden)')) renderMenu(isSilent);
+  }
+
+  function initLiveSync() {
+    if (fallbackTimer) clearInterval(fallbackTimer);
+    fallbackTimer = setInterval(() => {
+      loadAll(false).catch(err => console.error('Supabase polling fallback note:', err));
+    }, Math.max(8000, Number(SUPABASE_CONFIG.pollingFallbackMs) || 10000));
+  }
+
+  function setupSupabaseRealtimeListeners() {
+    if (SUPABASE_CONFIG.realtime === false) return;
+    try {
+      const client = getSupabase();
+      if (liveChannel) client.removeChannel(liveChannel);
+      liveChannel = client.channel('orienteck-admin-postgres-changes');
+      Object.entries(TABLES).forEach(([kind, table]) => {
+        if (!table) return;
+        liveChannel = liveChannel.on('postgres_changes', {
+          event: '*', schema: SUPABASE_CONFIG.schema || 'public', table
+        }, async payload => {
+          console.info(`Supabase realtime update: ${kind}`, payload?.eventType || 'change');
+          try {
+            await loadAll(false);
+            renderActiveSection(true);
+          } catch (err) {
+            console.error(`Realtime refresh for ${kind} failed:`, err);
+          }
+        });
+      });
+      liveChannel.subscribe(status => {
+        const statusPill = $('#liveStatusText');
+        if (status === 'SUBSCRIBED') {
+          if (statusPill && !lastLoadErrors) statusPill.textContent = 'Supabase live sync connected';
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          if (statusPill) statusPill.textContent = 'Realtime reconnecting · auto refresh active';
+          console.warn('Supabase Realtime status:', status);
+        }
+      });
+    } catch (err) {
+      console.error('Could not start Supabase Realtime:', err);
+      const statusPill = $('#liveStatusText');
+      if (statusPill) statusPill.textContent = 'Realtime unavailable · auto refresh active';
+    }
+  }
+
+  function selectSection(name){
+    state.section=name;state.query='';state.filter='all';
+    $$('.nav-item[data-section]').forEach(b=>b.classList.toggle('active',b.dataset.section===name));
+    $('#appShell').classList.remove('nav-open');
+    renderSection(name).catch(err=>toast(err.message,true));
+  }
+
+  async function renderSection(name){
+    if(name==='dashboard')return renderDashboard();
+    if(name==='orders')return renderOrders();
+    if(name==='reservations')return renderReservations();
+    if(name==='messages')return renderMessages();
+    if(name==='menu')return renderMenu();
+    if(name==='foodadd')return renderFoodAdd();
+  }
+
+  /* ===== DASHBOARD (OVERVIEW & RECENT ACTIVITY) ===== */
+  function renderDashboard(silent=false){
+    const orders = state.orders || [];
+    const reservations = state.reservations || [];
+    const messages = state.messages || [];
+    const menu = state.menu || [];
+
+    const totalRev = orders.reduce((sum,o)=>sum+(Number(o.total)||0), 0);
+    const newOrders = orders.filter(x=>['New','Pending','Preparing'].includes(x.status)).length;
+    const newRes = reservations.filter(x=>['New','Pending'].includes(x.status)).length;
+    const newMsgs = messages.filter(x=>['New','Pending','unread'].includes(x.status)).length;
+
+    const recentOrders = orders.slice(0, 5);
+    const recentRes = reservations.slice(0, 4);
+    const recentMsgs = messages.slice(0, 4);
+
+    const html = `
+      <div class="page-head dashboard-head">
+        <div>
+          <span class="eyebrow">ORIENTECK ADMIN WORKSPACE</span>
+        </div>
+        <div class="page-actions">
+          <button class="secondary btn-refresh" id="dashboardRefresh" type="button"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg> Sync Now</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat" data-go="orders">
+          <div class="stat-top"><span>CUSTOMER ORDERS</span><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M5 7h14l1 13H4L5 7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></div></div>
+          <div class="stat-number">${orders.length}</div>
+          <div class="stat-note"><span class="badge ${newOrders>0?'':'green'}">${newOrders} Pending / New</span> <span>${money(totalRev)} vol</span></div>
+        </div>
+        <div class="stat" data-go="reservations">
+          <div class="stat-top"><span>TABLE BOOKINGS</span><div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h6"/></svg></div></div>
+          <div class="stat-number">${reservations.length}</div>
+          <div class="stat-note"><span class="badge ${newRes>0?'':'green'}">${newRes} New Requests</span> <span>${reservations.length ? 'Live database' : 'Ready'}</span></div>
+        </div>
+        <div class="stat" data-go="messages">
+          <div class="stat-top"><span>CONTACT MESSAGES</span><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v12H8l-4 3z"/><path d="M8 9h8M8 13h5"/></svg></div></div>
+          <div class="stat-number">${messages.length}</div>
+          <div class="stat-note"><span class="badge ${newMsgs>0?'':'green'}">${newMsgs} Unread Messages</span></div>
+        </div>
+        <div class="stat" data-go="menu">
+          <div class="stat-top"><span>FOOD ITEMS</span><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/></svg></div></div>
+          <div class="stat-number">${menu.length}</div>
+          <div class="stat-note"><span class="badge green">${[...new Set(menu.map(p=>p.category))].filter(Boolean).length} Categories</span> <span>In Supabase</span></div>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h3>Recent customer food orders</h3>
+            <p>Orders submitted from the customer ordering page appear here in real-time.</p>
+          </div>
+          <div>
+            <button class="link-btn" data-go="orders" style="font-size:12px">View all ${orders.length} orders →</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Items Ordered</th>
+                <th>Total</th>
+                <th>Placed</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${recentOrders.map(o=>`
+                <tr>
+                  <td>
+                    <b>#${esc(o.nr||o.orderNumber||o.id)}</b>
+                    <small style="display:block;color:#809084;margin-top:3px">${esc(o.payment||o.paymentMethod||'Cash on delivery')}</small>
+                  </td>
+                  <td>
+                    <b>${esc(o.name)}</b>
+                    <small style="display:block;color:#809084;margin-top:3px"><a href="tel:${esc(o.phone)}" style="color:var(--gold2)">${esc(o.phone)}</a></small>
+                    <small style="display:block;color:#809084;margin-top:2px;max-width:220px;white-space:normal">${esc(o.address)}</small>
+                    ${o.note?`<small style="display:block;color:var(--gold);margin-top:3px;font-style:italic">Note: ${esc(o.note)}</small>`:''}
+                  </td>
+                  <td>
+                    ${(o.items||[]).map(it=>`<div><b>${esc(it.qty)}×</b> ${esc(it.name)}${it.variant?' <span class="muted">('+esc(it.variant)+')</span>':''}</div>`).join('')||'—'}
+                  </td>
+                  <td class="money">${money(o.total)}</td>
+                  <td>${date(o.createdAt)}</td>
+                  <td>
+                    <select class="status-select" data-order-status="${esc(o.id)}">
+                      ${['New','Confirmed','Preparing','Out for delivery','Delivered','Cancelled'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
+                    </select>
+                  </td>
+                </tr>`).join('') || `<tr><td colspan="6"><div class="empty"><strong>No orders yet</strong>When a customer places an order on the site, it will be saved to the database and displayed here immediately.</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TWO COLUMN RECENT RESERVATIONS & MESSAGES -->
+      <div class="grid-two">
+        <!-- RECENT RESERVATIONS -->
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Recent table reservations</h3>
+              <p>Requests from the website reservation form.</p>
+            </div>
+            <button class="link-btn" data-go="reservations">View all (${reservations.length}) →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" style="min-width:480px">
+              <thead>
+                <tr>
+                  <th>Guest</th>
+                  <th>Date & Time</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${recentRes.map(r=>`
+                  <tr>
+                    <td>
+                      <b>${esc(r.name)}</b>
+                      <small style="display:block;color:#87958a;margin-top:3px">${esc(r.guests)} guests</small>
+                      ${r.notes?`<small style="display:block;color:var(--gold);margin-top:2px;max-width:160px;white-space:normal">${esc(r.notes)}</small>`:''}
+                    </td>
+                    <td>
+                      <b>${esc(r.date)}</b>
+                      <small style="display:block;color:#87958a;margin-top:3px">${esc(r.time)}</small>
+                    </td>
+                    <td>
+                      <small style="display:block"><a href="mailto:${esc(r.email)}" style="color:var(--gold2)">${esc(r.email)}</a></small>
+                      <small style="display:block;color:#87958a;margin-top:3px">${esc(r.phone||'No phone')}</small>
+                    </td>
+                    <td>
+                      <select class="status-select" data-res-status="${esc(r.id)}">
+                        ${['New','Confirmed','Declined','Completed'].map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}
+                      </select>
+                    </td>
+                  </tr>`).join('') || `<tr><td colspan="4"><div class="empty"><strong>No reservation requests</strong>New booking requests will appear here.</div></td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- RECENT MESSAGES -->
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Recent contact messages</h3>
+              <p>Messages submitted through the contact page.</p>
+            </div>
+            <button class="link-btn" data-go="messages">View all (${messages.length}) →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" style="min-width:480px">
+              <thead>
+                <tr>
+                  <th>Sender</th>
+                  <th>Subject & Message</th>
+                  <th>Received</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${recentMsgs.map(m=>`
+                  <tr>
+                    <td>
+                      <b>${esc(m.firstName)} ${esc(m.lastName)}</b>
+                      <small style="display:block;color:#87958a;margin-top:3px"><a href="mailto:${esc(m.email)}" style="color:var(--gold2)">${esc(m.email)}</a></small>
+                    </td>
+                    <td style="max-width:210px">
+                      <b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(m.subject)}</b>
+                      <small style="display:block;color:#a0aba2;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.message)}</small>
+                    </td>
+                    <td>${date(m.createdAt)}</td>
+                    <td>
+                      <select class="status-select" data-msg-status="${esc(m.id)}">
+                        ${['New','Read','Replied','Archived'].map(s=>`<option ${m.status===s?'selected':''}>${s}</option>`).join('')}
+                      </select>
+                    </td>
+                  </tr>`).join('') || `<tr><td colspan="4"><div class="empty"><strong>No messages yet</strong>Contact inquiries will appear here.</div></td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- QUICK MENU PREVIEW & ACTIONS -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h3>Menu catalogue preview (${menu.length} items)</h3>
+            <p>Dishes and categories in the shared database. Changes appear live on the customer site.</p>
+          </div>
+          <div class="page-actions">
+            <button class="secondary" data-go="menu">Open full catalogue</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="quick-grid">
+            ${menu.slice(0, 6).map(p=>`
+              <div class="quick-card">
+                ${iconThumb(p)}
+                <div style="min-width:0;flex:1">
+                  <strong style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${esc(p.name)}</strong>
+                  <small style="display:block;color:#849286;margin-top:2px">${esc(p.category)} · <b style="color:var(--gold2)">${money(p.price)}</b></small>
+                </div>
+                <button class="icon-btn" data-edit="${esc(p.id)}" title="Edit dish">✎</button>
+              </div>`).join('')}
+          </div>
+        </div>
+      </section>
+    `;
+
+    const container = $('#mainContent');
+    if (!silent || document.activeElement?.tagName !== 'SELECT') {
+      container.innerHTML = html;
+      bindDashboardEvents();
+    }
+  }
+
+  function bindDashboardEvents(){
+    $$('[data-go]').forEach(el => el.onclick = () => selectSection(el.dataset.go));
+    $('#dashboardRefresh')?.addEventListener('click', refreshWorkspace);
+    $$('[data-order-status]').forEach(sel=>sel.onchange=()=>updateStatus('orders',sel.dataset.orderStatus,sel.value));
+    $$('[data-res-status]').forEach(sel=>sel.onchange=()=>updateStatus('reservations',sel.dataset.resStatus,sel.value));
+    $$('[data-msg-status]').forEach(sel=>sel.onchange=()=>updateStatus('messages',sel.dataset.msgStatus,sel.value));
+    $$('[data-edit]').forEach(b=>b.onclick=()=>openFoodModal(state.menu.find(p=>p.id===b.dataset.edit)));
+  }
+
+  /* ===== ORDERS SECTION ===== */
+  function renderOrders(silent=false){
+    const list=state.orders;
+    if(silent && $('#orderRows') && typeof window.__applyOrders === 'function'){
+      window.__applyOrders();
+      return;
+    }
+    $('#mainContent').innerHTML=`
+      <div class="page-head">
+        <div>
+          <h2>Customer orders</h2>
+          <p>Orders placed on the website are automatically stored in the shared database in real-time.</p>
+        </div>
+        <div class="page-actions">
+          <button class="secondary btn-refresh" id="refreshOrders"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg> Refresh</button>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="toolbar">
+          <div class="filter-row" id="orderFilters">
+            ${['all','New','Confirmed','Preparing','Out for delivery','Delivered','Cancelled'].map((x,i)=>`<button class="filter-chip ${i===0?'active':''}" data-status="${esc(x)}">${i===0?'All orders ('+list.length+')':esc(x)}</button>`).join('')}
+          </div>
+          <label class="toolbar-search">
+            <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+            <input id="orderSearch" type="search" placeholder="Search order, customer, phone…">
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Items Ordered</th>
+                <th>Total</th>
+                <th>Placed</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orderRows"></tbody>
+          </table>
+        </div>
+        <div class="table-foot" id="orderFoot"></div>
+      </section>`;
+
+    let filter='all';
+    const apply=()=>{
+      const currentOrders = state.orders || [];
+      const q=($('#orderSearch')?.value||'').toLowerCase().trim();
+      const rows=currentOrders.filter(o=>(filter==='all'||o.status===filter)&&[o.nr,o.orderNumber,o.name,o.phone,o.address,o.note].join(' ').toLowerCase().includes(q));
+      $('#orderRows').innerHTML=rows.map(o=>`
+        <tr>
+          <td>
+            <b>#${esc(o.nr||o.orderNumber||o.id)}</b>
+            <small style="display:block;color:#809084;margin-top:4px">${esc(o.payment||o.paymentMethod||'Cash on delivery')}</small>
+          </td>
+          <td>
+            <b>${esc(o.name)}</b>
+            <small style="display:block;color:#809084;margin-top:4px"><a href="tel:${esc(o.phone)}" style="color:var(--gold2)">${esc(o.phone)}</a></small>
+            <small style="display:block;color:#809084;margin-top:3px;max-width:210px;white-space:normal">${esc(o.address)}</small>
+            ${o.note?`<small style="display:block;color:var(--gold);margin-top:3px;font-style:italic">Note: ${esc(o.note)}</small>`:''}
+          </td>
+          <td>
+            ${(o.items||[]).map(it=>`<div><b>${esc(it.qty)}×</b> ${esc(it.name)}${it.variant?' <span class="muted">('+esc(it.variant)+')</span>':''}</div>`).join('')||'—'}
+          </td>
+          <td class="money">${money(o.total)}</td>
+          <td>${date(o.createdAt)}</td>
+          <td>
+            <select class="status-select" data-order-status="${esc(o.id)}">
+              ${['New','Confirmed','Preparing','Out for delivery','Delivered','Cancelled'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <button class="icon-btn" data-delete-order="${esc(o.id)}" data-order-label="${esc(o.nr||o.orderNumber||o.id)}" title="Delete order" style="color:#ffb4a6;border-color:rgba(238,128,111,.25)" aria-label="Delete order">
+              <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v7M14 11v7M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>
+            </button>
+          </td>
+        </tr>`).join('')||'<tr><td colspan="7"><div class="empty"><strong>No orders found</strong>New orders placed on the website will appear here in real-time.</div></td></tr>';
+
+      $('#orderFoot').textContent=`Showing ${rows.length} of ${currentOrders.length} orders in database.`;
+      $$('[data-order-status]').forEach(sel=>sel.onchange=()=>updateStatus('orders',sel.dataset.orderStatus,sel.value));
+      $$('[data-delete-order]').forEach(b=>b.onclick=()=>deleteRecord('orders',b.dataset.deleteOrder,'Order #'+b.dataset.orderLabel));
+    };
+
+    $('#orderSearch').oninput=apply;
+    $('#orderFilters').onclick=e=>{
+      const b=e.target.closest('[data-status]');
+      if(!b)return;
+      filter=b.dataset.status;
+      $$('#orderFilters [data-status]').forEach(x=>x.classList.toggle('active',x===b));
+      apply();
+    };
+    $('#refreshOrders').onclick=refreshWorkspace;
+    window.__applyOrders = apply;
+    apply();
+  }
+
+  async function updateStatus(resource,id,status){
+    try{
+      await api(`/api/admin/${resource}/${encodeURIComponent(id)}`,{method:'PATCH',body:JSON.stringify({status})});
+      await loadAll();
+      if(state.section==='dashboard') renderDashboard();
+      else if(resource==='orders') renderOrders();
+      else if(resource==='reservations') renderReservations();
+      else renderMessages();
+      toast('Status updated in database.');
+    }catch(err){
+      toast(err.message,true);
+    }
+  }
+
+  async function deleteRecord(resource,id,label){
+    if(!confirm(`Delete ${label||'this record'} from the database? This cannot be undone.`))return;
+    try{
+      await api(`/api/admin/${resource}/${encodeURIComponent(id)}`,{method:'DELETE'});
+      await loadAll();
+      if(state.section==='dashboard') renderDashboard();
+      else if(resource==='orders') renderOrders();
+      else if(resource==='reservations') renderReservations();
+      else if(resource==='messages') renderMessages();
+      toast(`${label||'Record'} deleted from database.`);
+    }catch(err){
+      toast(err.message,true);
+    }
+  }
+
+  /* ===== RESERVATIONS SECTION ===== */
+  function renderReservations(silent=false){
+    const list=state.reservations;
+    if(silent && $('#resRows') && typeof window.__applyReservations === 'function'){
+      window.__applyReservations();
+      return;
+    }
+    $('#mainContent').innerHTML=`
+      <div class="page-head">
+        <div>
+          <h2>Table reservations</h2>
+          <p>Review customer booking requests and confirm, decline or complete visits.</p>
+        </div>
+        <div class="page-actions">
+          <button class="secondary btn-refresh" id="refreshRes"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg> Refresh</button>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="toolbar">
+          <div class="filter-row" id="resFilters">
+            ${['all','New','Confirmed','Declined','Completed'].map((x,i)=>`<button class="filter-chip ${i===0?'active':''}" data-status="${esc(x)}">${i===0?'All requests ('+list.length+')':esc(x)}</button>`).join('')}
+          </div>
+          <label class="toolbar-search">
+            <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+            <input id="resSearch" type="search" placeholder="Search guest, date, phone…">
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Guest</th>
+                <th>Visit Date & Time</th>
+                <th>Contact</th>
+                <th>Special requests</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="resRows"></tbody>
+          </table>
+        </div>
+        <div class="table-foot" id="resFoot"></div>
+      </section>`;
+
+    let filter='all';
+    const apply=()=>{
+      const currentRes = state.reservations || [];
+      const q=($('#resSearch')?.value||'').toLowerCase().trim();
+      const rows=currentRes.filter(r=>(filter==='all'||r.status===filter)&&[r.name,r.email,r.phone,r.date,r.time,r.notes].join(' ').toLowerCase().includes(q));
+      $('#resRows').innerHTML=rows.map(r=>`
+        <tr>
+          <td>
+            <b>${esc(r.name)}</b>
+            <small style="display:block;color:#87958a;margin-top:4px">${esc(r.guests)} guests</small>
+          </td>
+          <td>
+            <b>${esc(r.date)} · ${esc(r.time)}</b>
+            <small style="display:block;color:#87958a;margin-top:4px">Table reservation</small>
+          </td>
+          <td>
+            <a href="mailto:${esc(r.email)}" style="color:var(--gold2)">${esc(r.email)}</a>
+            <small style="display:block;color:#87958a;margin-top:4px"><a href="tel:${esc(r.phone)}" style="color:#d2dacf">${esc(r.phone||'No phone')}</a></small>
+          </td>
+          <td style="white-space:normal;min-width:140px;max-width:240px">${esc(r.notes||'—')}</td>
+          <td>${date(r.createdAt)}</td>
+          <td>
+            <select class="status-select" data-res-status="${esc(r.id)}">
+              ${['New','Confirmed','Declined','Completed'].map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <button class="icon-btn" data-delete-res="${esc(r.id)}" data-res-name="${esc(r.name)}" title="Delete reservation" style="color:#ffb4a6;border-color:rgba(238,128,111,.25)" aria-label="Delete reservation">
+              <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v7M14 11v7M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>
+            </button>
+          </td>
+        </tr>`).join('')||'<tr><td colspan="7"><div class="empty"><strong>No reservation requests</strong>Customer booking requests from the site appear here.</div></td></tr>';
+
+      $('#resFoot').textContent=`Showing ${rows.length} of ${currentRes.length} reservation requests in database.`;
+      $$('[data-res-status]').forEach(sel=>sel.onchange=()=>updateStatus('reservations',sel.dataset.resStatus,sel.value));
+      $$('[data-delete-res]').forEach(b=>b.onclick=()=>deleteRecord('reservations',b.dataset.deleteRes,'Reservation for '+b.dataset.resName));
+    };
+
+    $('#resSearch').oninput=apply;
+    $('#resFilters').onclick=e=>{
+      const b=e.target.closest('[data-status]');
+      if(!b)return;
+      filter=b.dataset.status;
+      $$('#resFilters [data-status]').forEach(x=>x.classList.toggle('active',x===b));
+      apply();
+    };
+    $('#refreshRes').onclick=refreshWorkspace;
+    window.__applyReservations = apply;
+    apply();
+  }
+
+  /* ===== MESSAGES SECTION ===== */
+  function renderMessages(silent=false){
+    const list=state.messages;
+    const renderMsgRows=()=>(state.messages||[]).map(m=>`
+      <tr>
+        <td>
+          <b>${esc(m.firstName)} ${esc(m.lastName)}</b>
+          <small style="display:block;color:#87958a;margin-top:4px"><a href="mailto:${esc(m.email)}" style="color:var(--gold2)">${esc(m.email)}</a></small>
+        </td>
+        <td><b>${esc(m.subject)}</b></td>
+        <td style="white-space:normal;max-width:340px;min-width:220px">${esc(m.message)}</td>
+        <td>${date(m.createdAt)}</td>
+        <td>
+          <select class="status-select" data-msg-status="${esc(m.id)}">
+            ${['New','Read','Replied','Archived'].map(s=>`<option ${m.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+          <div style="margin-top:7px">
+            <a href="mailto:${esc(m.email)}?subject=${encodeURIComponent('Re: '+(m.subject||''))}" class="link-btn">Reply via Email ↗</a>
+          </div>
+        </td>
+        <td>
+          <button class="icon-btn" data-delete-msg="${esc(m.id)}" data-msg-sender="${esc(m.firstName+' '+m.lastName)}" title="Delete message" style="color:#ffb4a6;border-color:rgba(238,128,111,.25)" aria-label="Delete message">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v7M14 11v7M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>
+          </button>
+        </td>
+      </tr>`).join('')||'<tr><td colspan="6"><div class="empty"><strong>No messages yet</strong>Contact form submissions from your website will appear here in real time.</div></td></tr>';
+
+    if(silent && $('#msgRows')){
+      $('#msgRows').innerHTML=renderMsgRows();
+      $$('[data-msg-status]').forEach(sel=>sel.onchange=()=>updateStatus('messages',sel.dataset.msgStatus,sel.value));
+      $$('[data-delete-msg]').forEach(b=>b.onclick=()=>deleteRecord('messages',b.dataset.deleteMsg,'Message from '+b.dataset.msgSender));
+      return;
+    }
+    $('#mainContent').innerHTML=`
+      <div class="page-head">
+        <div>
+          <h2>Contact messages</h2>
+          <p>Customer inquiries submitted through the contact form are stored in the database here.</p>
+        </div>
+        <div class="page-actions">
+          <button class="secondary btn-refresh" id="refreshMessages"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg> Refresh</button>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="table-wrap">
+          <table class="data-table" style="min-width:720px">
+            <thead>
+              <tr>
+                <th>Sender</th>
+                <th>Subject</th>
+                <th>Message Content</th>
+                <th>Received</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="msgRows">${renderMsgRows()}</tbody>
+          </table>
+        </div>
+        <div class="table-foot">${list.length} saved customer messages in database</div>
+      </section>`;
+
+    $$('[data-msg-status]').forEach(sel=>sel.onchange=()=>updateStatus('messages',sel.dataset.msgStatus,sel.value));
+    $$('[data-delete-msg]').forEach(b=>b.onclick=()=>deleteRecord('messages',b.dataset.deleteMsg,'Message from '+b.dataset.msgSender));
+    $('#refreshMessages').onclick=refreshWorkspace;
+  }
+
+  /* ===== FOOD CATALOGUE ===== */
+  async function renderMenu(silent=false){
+    if(silent && $('#menuRows') && typeof window.__applyMenu === 'function'){
+      window.__applyMenu();
+      return;
+    }
+    const catList=[...new Set(state.menu.map(p=>p.category))].filter(Boolean).sort();
+    $('#mainContent').innerHTML=`
+      <div class="page-head">
+        <div>
+          <h2>Food catalogue</h2>
+          <p>Manage all ${state.menu.length} menu items in the database. Any add, edit or delete updates the website instantly.</p>
+        </div>
+        <div class="page-actions">
+          <button class="secondary btn-refresh" id="refreshMenu"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg> Refresh</button>
+          <button class="primary" id="addFood">＋ Add food item</button>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="toolbar">
+          <div class="filter-row" id="menuFilters">
+            <button class="filter-chip active" data-cat="all">All items (${state.menu.length})</button>
+            ${catList.map(c=>`<button class="filter-chip" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}
+          </div>
+          <label class="toolbar-search">
+            <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+            <input id="menuSearch" type="search" placeholder="Search food or category…" value="${esc(state.query)}">
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Food item</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Availability</th>
+                <th>Visibility</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="menuRows"></tbody>
+          </table>
+        </div>
+        <div class="table-foot" id="menuFoot"></div>
+      </section>`;
+
+    const apply=()=>{
+      const q=$('#menuSearch').value.toLowerCase().trim(),f=state.filter;
+      const list=state.menu.filter(p=>(f==='all'||p.category===f)&&[p.name,p.category,p.description].join(' ').toLowerCase().includes(q))
+        .sort((a,b)=>(Number(a.sortOrder)||0)-(Number(b.sortOrder)||0));
+
+      $('#menuRows').innerHTML=list.map(p=>`
+        <tr>
+          <td>
+            <div class="dish-cell">
+              ${iconThumb(p)}
+              <div>
+                <strong>${esc(p.name)}</strong>
+                <small>${esc(p.category)}</small>
+              </div>
+            </div>
+          </td>
+          <td class="money">${money(p.price)}</td>
+          <td>${p.quantity ?? 50} in stock</td>
+          <td>${p.available!==false?badge('Available'):badge('Unavailable')}</td>
+          <td>${p.visible!==false?badge('Visible'):badge('Hidden')}</td>
+          <td>
+            <div class="row-actions">
+              <button class="icon-btn" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.name)}" title="Edit">
+                <svg viewBox="0 0 24 24"><path d="m4 16-.8 4.8L8 20l11.8-11.8a2.5 2.5 0 0 0-3.5-3.5L4 16zM14.5 6.5l3 3"/></svg>
+              </button>
+              <button class="icon-btn" data-copy="${esc(p.id)}" aria-label="Duplicate ${esc(p.name)}" title="Duplicate">＋</button>
+              <button class="icon-btn" data-delete="${esc(p.id)}" aria-label="Delete ${esc(p.name)}" title="Delete">
+                <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v7M14 11v7M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>`).join('')||'<tr><td colspan="6"><div class="empty"><strong>No matching food</strong>Try another search or category.</div></td></tr>';
+
+      $('#menuFoot').textContent=`Showing ${list.length} of ${state.menu.length} food items in database · Synced with live website.`;
+      $$('[data-edit]').forEach(b=>b.onclick=()=>openFoodModal(state.menu.find(p=>p.id===b.dataset.edit)));
+      $$('[data-copy]').forEach(b=>b.onclick=()=>{
+        const p=state.menu.find(x=>x.id===b.dataset.copy);
+        openFoodModal({...p,id:'',name:p.name+' (Copy)',sortOrder:state.menu.length+1,createdAt:null});
+      });
+      $$('[data-delete]').forEach(b=>b.onclick=()=>deleteFood(b.dataset.delete));
+    };
+
+    $('#menuSearch').oninput=apply;
+    $('#menuFilters').onclick=e=>{
+      const b=e.target.closest('[data-cat]');
+      if(!b)return;
+      state.filter=b.dataset.cat;
+      $$('#menuFilters [data-cat]').forEach(x=>x.classList.toggle('active',x===b));
+      apply();
+    };
+    $('#addFood').onclick=()=>openFoodModal();
+    $('#refreshMenu').onclick=refreshWorkspace;
+    window.__applyMenu = apply;
+    apply();
+  }
+
+  /* ===== ADD FOOD & CATEGORIES ===== */
+  async function renderFoodAdd(){
+    await loadAll();
+    const categories=[...new Set(state.menu.map(p=>p.category).filter(Boolean))].sort();
+    $('#mainContent').innerHTML=`
+      <div class="page-head">
+        <div>
+          <h2>Add food & categories</h2>
+          <p>Create dishes and categories. All changes sync directly to the online customer menu in the shared database.</p>
+        </div>
+        <div class="page-actions">
+          <button class="secondary btn-refresh" id="refreshFoodAdd"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg> Refresh</button>
+          <button class="secondary" id="goToCatalogue">View Catalogue (${state.menu.length})</button>
+          <button class="primary" id="addFoodFromPage">＋ Add food item</button>
+        </div>
+      </div>
+      <div class="grid-two">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Food categories</h3>
+              <p>Type a category name to immediately create food under it.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <form id="categoryQuickForm">
+              <div class="field">
+                <label for="newCategoryName">New category name</label>
+                <input id="newCategoryName" required maxlength="120" placeholder="e.g. Starters & Mezze, Grilled Dishes…">
+              </div>
+              <button class="primary" type="submit">＋ Use new category</button>
+              <p class="hint" style="margin-top:12px">A category is stored with the food item saved under it.</p>
+            </form>
+            <div style="margin-top:24px">
+              <strong style="font-size:11px;text-transform:uppercase;color:#85958a;letter-spacing:.1em;display:block;margin-bottom:10px">Existing categories (${categories.length})</strong>
+              <div class="filter-row" style="flex-wrap:wrap">
+                ${categories.length?categories.map(c=>`<span class="filter-chip">${esc(c)}</span>`).join(''):'<span class="muted">No categories yet.</span>'}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Food item details</h3>
+              <p>Each dish supports image, description, price, stock, and availability.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="simple-list">
+              <div class="simple-row">
+                <div class="simple-icon">✦</div>
+                <div class="simple-main">
+                  <strong>Food photo</strong>
+                  <small>Upload a photo or paste an image URL</small>
+                </div>
+              </div>
+              <div class="simple-row">
+                <div class="simple-icon">€</div>
+                <div class="simple-main">
+                  <strong>Name, description & price</strong>
+                  <small>Displayed prominently to customers on website</small>
+                </div>
+              </div>
+              <div class="simple-row">
+                <div class="simple-icon">#</div>
+                <div class="simple-main">
+                  <strong>Stock quantity & availability</strong>
+                  <small>Control stock count and toggle online ordering on/off</small>
+                </div>
+              </div>
+              <div class="simple-row">
+                <div class="simple-icon">✓</div>
+                <div class="simple-main">
+                  <strong>Cash on delivery</strong>
+                  <small>Customer pays the rider at their door in cash</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>`;
+
+    $('#refreshFoodAdd').onclick=refreshWorkspace;
+    $('#addFoodFromPage').onclick=()=>{state.pendingCategory='';openFoodModal()};
+    $('#goToCatalogue').onclick=()=>selectSection('menu');
+    $('#categoryQuickForm').onsubmit=e=>{
+      e.preventDefault();
+      const name=$('#newCategoryName').value.trim();
+      if(!name)return;
+      state.pendingCategory=name;
+      openFoodModal();
+      const field=$('#foodCategory');
+      if(field)field.value=name;
+      $('#newCategoryName').value='';
+    };
+  }
+
+  /* ===== FOOD EDIT / ADD MODAL ===== */
+  function compressImageFile(file, maxDim = 1200, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Failed to parse image'));
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* ===== FOOD EDIT / ADD MODAL ===== */
+  function openFoodModal(item=null){
+    const p=item||{
+      id:'',
+      name:'',
+      category:state.pendingCategory||'',
+      categoryId:slug(state.pendingCategory||'other'),
+      description:'',
+      price:0,
+      quantity:50,
+      available:true,
+      visible:true,
+      image:'',
+      images:[],
+      sortOrder:state.menu.length+1
+    };
+    
+    // Parse existing images array or single image string
+    if (Array.isArray(p.images) && p.images.length > 0) {
+      state.modalImages = [...p.images];
+    } else if (p.image) {
+      const s = String(p.image).trim();
+      if (s.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(s);
+          state.modalImages = Array.isArray(parsed) ? parsed : [p.image];
+        } catch(e) {
+          state.modalImages = [p.image];
+        }
+      } else {
+        state.modalImages = [p.image];
+      }
+    } else {
+      state.modalImages = [];
+    }
+
+    state.modalImage = state.modalImages[0] || '';
+    const categoryValues=[...new Set(state.menu.map(x=>x.category))].filter(Boolean);
+
+    $('#modal').innerHTML=`
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow">Database Item Management</div>
+          <h3 id="modalTitle">${item?.id?'Edit food item':'Add a food item'}</h3>
+        </div>
+        <button class="close" type="button" data-modal-close aria-label="Close">✕</button>
+      </div>
+      <form id="foodForm">
+        <div class="modal-form">
+          <input type="hidden" name="id" value="${esc(p.id||'')}">
+          <div class="form-grid">
+            <div class="field">
+              <label for="foodName">Food name *</label>
+              <input id="foodName" name="name" required maxlength="180" value="${esc(p.name)}" placeholder="e.g. Taboulé, Shawarma Platter">
+            </div>
+            <div class="field">
+              <label for="foodCategory">Category *</label>
+              <input id="foodCategory" list="categoryOptions" name="category" required maxlength="120" value="${esc(p.category)}" placeholder="e.g. Starters & Mezze">
+              <datalist id="categoryOptions">${categoryValues.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+              <span class="hint">Select an existing category or enter a new one.</span>
+            </div>
+            <div class="field">
+              <label for="foodPrice">Price (€) *</label>
+              <input id="foodPrice" name="price" type="number" min="0" step="0.01" required value="${Number(p.price)||0}">
+            </div>
+            <div class="field">
+              <label for="foodQuantity">Stock quantity *</label>
+              <input id="foodQuantity" name="quantity" type="number" min="0" step="1" required value="${Number(p.quantity ?? 50)}" placeholder="e.g. 50">
+            </div>
+            <div class="field full">
+              <label for="foodDescription">Description</label>
+              <input id="foodDescription" name="description" maxlength="2000" value="${esc(p.description)}" placeholder="Short appetizing menu description">
+            </div>
+            <div class="field full">
+              <label>Food photos (multiple upload supported)</label>
+              <div class="image-gallery-wrap">
+                <div id="imageGalleryGrid" class="image-gallery-grid"></div>
+                <label class="gallery-upload-btn" for="foodImageFile">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span>Click to choose food photos (select one or multiple)</span>
+                  <small>Upload multiple high-res photos from your device. Photos are automatically optimized.</small>
+                </label>
+                <input id="foodImageFile" type="file" multiple accept="image/*" style="display:none">
+                <div id="imageUploadStatus" class="hint" style="color:var(--gold2)"></div>
+              </div>
+            </div>
+            <div class="field full">
+              <label for="foodPayment">Delivery payment method</label>
+              <select id="foodPayment" name="payment" disabled>
+                <option value="Cash on delivery" selected>Cash on delivery</option>
+              </select>
+              <span class="hint">Cash on delivery is fixed for food orders on this site.</span>
+            </div>
+          </div>
+          <label class="check-row">
+            <input type="checkbox" name="available" ${p.available!==false?'checked':''}>
+            <span><b>Available for ordering</b><br><span class="muted">Unavailable items remain visible on the site but cannot be added to cart.</span></span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="visible" ${p.visible!==false?'checked':''}>
+            <span><b>Show on website</b><br><span class="muted">Turn off to completely hide this item from the public site.</span></span>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <div>
+            ${p.id?`<button type="button" class="danger" id="modalDelete">Delete dish</button>`:''}
+          </div>
+          <div>
+            <button type="button" class="secondary" data-modal-close>Cancel</button>
+            <button class="primary" type="submit" id="saveFood">Save to database</button>
+          </div>
+        </div>
+      </form>`;
+
+    $('#modalBackdrop').classList.remove('hidden');
+    $$('[data-modal-close]').forEach(b=>b.onclick=closeModal);
+
+    function renderGallery() {
+      const grid = $('#imageGalleryGrid');
+      if (!grid) return;
+      if (!state.modalImages || state.modalImages.length === 0) {
+        grid.innerHTML = '';
+        state.modalImage = '';
+        return;
+      }
+      state.modalImage = state.modalImages[0] || '';
+      grid.innerHTML = state.modalImages.map((imgSrc, idx) => `
+        <div class="image-gallery-item ${idx===0?'is-cover':''}" data-img-idx="${idx}">
+          <img src="${esc(imgSrc)}" alt="Food photo ${idx+1}">
+          ${idx===0?'<span class="cover-badge">★ Cover</span>':`<button type="button" class="make-cover-btn" data-make-cover="${idx}">Set cover</button>`}
+          <button type="button" class="del-img-btn" data-del-img="${idx}" title="Delete photo" aria-label="Delete photo">✕</button>
+        </div>
+      `).join('');
+
+      // Bind delete buttons
+      grid.querySelectorAll('[data-del-img]').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.delImg, 10);
+          state.modalImages.splice(idx, 1);
+          renderGallery();
+        };
+      });
+
+      // Bind set cover buttons
+      grid.querySelectorAll('[data-make-cover]').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.makeCover, 10);
+          const [selected] = state.modalImages.splice(idx, 1);
+          state.modalImages.unshift(selected);
+          renderGallery();
+        };
+      });
+    }
+
+    renderGallery();
+
+    const fileInput = $('#foodImageFile');
+    fileInput.onchange = async () => {
+      const files = Array.from(fileInput.files || []);
+      if (!files.length) return;
+      const statusEl = $('#imageUploadStatus');
+      if (statusEl) statusEl.textContent = `Optimizing ${files.length} photo(s)...`;
+      for (const file of files) {
+        try {
+          const compressed = await compressImageFile(file, 1200, 0.85);
+          state.modalImages.push(compressed);
+        } catch(err) {
+          console.warn('Image file compress note:', err);
+        }
+      }
+      if (statusEl) {
+        statusEl.textContent = `✓ ${files.length} photo(s) added! First photo is the main cover.`;
+        setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+      }
+      renderGallery();
+      fileInput.value = '';
+    };
+
+    $('#foodForm').onsubmit=saveFoodItem;
+    if(p.id)$('#modalDelete').onclick=()=>deleteFood(p.id,true);
+  }
+
+  async function saveFoodItem(e){
+    e.preventDefault();
+    const f=new FormData(e.target);
+    const id=f.get('id');
+    const name=String(f.get('name')||'').trim();
+    const category=String(f.get('category')||'').trim()||'Other';
+    const price=parseFloat(f.get('price'))||0;
+    const quantity=parseInt(f.get('quantity'),10)||0;
+    const description=String(f.get('description')||'').trim();
+    const sortOrder=parseInt(f.get('sortOrder'),10)||current?.sortOrder||(state.menu.length+1);
+    const available=f.get('available')!==null;
+    const visible=f.get('visible')!==null;
+
+    if(!name){toast('Please provide a food name',true);return}
+
+    const current=state.menu.find(x=>x.id===id);
+    const imgs = (state.modalImages && state.modalImages.length > 0)
+      ? state.modalImages
+      : (current?.images || (current?.image ? [current.image] : []));
+
+    const payload={
+      id:id||undefined,
+      name,
+      category,
+      categoryId:slug(category),
+      price,
+      quantity,
+      description,
+      available,
+      visible,
+      sortOrder,
+      payment:'Cash on delivery',
+      images:imgs,
+      image:imgs[0]||current?.image||'',
+      variants:current?.variants||[]
+    };
+
+    try{
+      $('#saveFood').setAttribute('disabled','true');
+      await api('/api/admin/menu',{method:'POST',body:JSON.stringify(payload)});
+      closeModal();
+      state.pendingCategory='';
+      await loadAll();
+      if(state.section==='dashboard') renderDashboard();
+      else if(state.section==='menu') renderMenu();
+      else renderFoodAdd();
+      toast(current?'Food item updated in database!':'New food item added to database!');
+    }catch(err){
+      toast(err.message,true);
+    }finally{
+      $('#saveFood')?.removeAttribute('disabled');
+    }
+  }
+
+  async function deleteFood(id,fromModal=false){
+    const item=state.menu.find(x=>x.id===id);
+    if(!confirm(`Delete “${item?.name||'this food item'}” from the database and menu? This cannot be undone.`))return;
+    try{
+      await api('/api/admin/menu/'+encodeURIComponent(id),{method:'DELETE'});
+      if(fromModal)closeModal();
+      await loadAll();
+      if(state.section==='dashboard') renderDashboard();
+      else if(state.section==='menu') renderMenu();
+      else renderFoodAdd();
+      toast('Food item deleted from database.');
+    }catch(err){
+      toast(err.message,true);
+    }
+  }
+
+  function closeModal(){
+    $('#modalBackdrop').classList.add('hidden');
+    state.modalImage='';
+  }
+
+  function downloadCsv(filename,headers,rows){
+    const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+    const csv=[headers,...rows].map(r=>r.map(quote).join(',')).join('\r\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  $('#sideNav').onclick=e=>{
+    const b=e.target.closest('[data-section]');
+    if(b) selectSection(b.dataset.section);
+  };
+
+  async function refreshWorkspace(){
+    const allBtns = $$('.btn-refresh, .mobile-refresh-btn, #sidebarRefreshBtn');
+    allBtns.forEach(b => b.classList.add('is-refreshing'));
+    try{
+      toast('Syncing with live database…');
+      await loadAll();
+      await renderSection(state.section);
+      toast('Workspace refreshed successfully!');
+    }catch(err){
+      toast(err.message||'Database sync failed.', true);
+    }finally{
+      setTimeout(()=>{
+        allBtns.forEach(b => b.classList.remove('is-refreshing'));
+      }, 400);
+    }
+  }
+  window.addEventListener('beforeunload', () => {
+    if (fallbackTimer) clearInterval(fallbackTimer);
+    if (liveChannel && supabaseClient) supabaseClient.removeChannel(liveChannel);
+  });
+  $('#sidebarRefreshBtn').onclick=refreshWorkspace;
+  const mobRefresh = $('#mobileRefreshBtn');
+  if(mobRefresh) mobRefresh.onclick=refreshWorkspace;
+  $('#mobileMenu').onclick=()=>$('#appShell').classList.toggle('nav-open');
+  $('#modalBackdrop').onclick=e=>{if(e.target===$('#modalBackdrop'))closeModal()};
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+  (async()=>{
+    try{
+      await enterApp();
+    }catch(err){
+      console.error(err);
+      toast(err.message || 'Supabase connection failed. Check config, table names and RLS policies.', true);
+    }
+  })();
+})();
+</script>
+</body>
+</html>

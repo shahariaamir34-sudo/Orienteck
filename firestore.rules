@@ -1,0 +1,105 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email == "bpe.dh8@gmail.com" &&
+        request.auth.token.email_verified == true;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidString(str, minLen, maxLen) {
+      return str is string && str.size() >= minLen && str.size() <= maxLen;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['orderNumber', 'name', 'phone', 'address', 'items', 'total', 'paymentMethod', 'mode', 'status', 'createdAt']) &&
+        data.keys().hasOnly(['orderNumber', 'name', 'phone', 'address', 'items', 'total', 'paymentMethod', 'mode', 'status', 'createdAt', 'note']) &&
+        data.orderNumber is number &&
+        isValidString(data.name, 1, 100) &&
+        isValidString(data.phone, 1, 30) &&
+        isValidString(data.address, 1, 200) &&
+        (!('note' in data) || isValidString(data.note, 0, 500)) &&
+        data.items is list &&
+        data.items.size() > 0 &&
+        data.items.size() <= 100 &&
+        data.total is number &&
+        data.total >= 0 &&
+        isValidString(data.paymentMethod, 1, 50) &&
+        isValidString(data.mode, 1, 30) &&
+        data.status in ['Pending', 'Preparing', 'Delivered', 'Cancelled'] &&
+        isValidString(data.createdAt, 1, 100);
+    }
+
+    function isValidReservation(data) {
+      return data.keys().hasAll(['name', 'email', 'phone', 'guests', 'date', 'time', 'status', 'createdAt']) &&
+        data.keys().hasOnly(['name', 'email', 'phone', 'guests', 'date', 'time', 'status', 'createdAt', 'notes']) &&
+        isValidString(data.name, 1, 100) &&
+        isValidString(data.email, 3, 120) &&
+        isValidString(data.phone, 1, 30) &&
+        isValidString(data.guests, 1, 10) &&
+        isValidString(data.date, 1, 30) &&
+        isValidString(data.time, 1, 20) &&
+        (!('notes' in data) || isValidString(data.notes, 0, 500)) &&
+        data.status in ['Pending', 'Confirmed', 'Cancelled'] &&
+        isValidString(data.createdAt, 1, 100);
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['firstName', 'lastName', 'email', 'subject', 'message', 'status', 'createdAt']) &&
+        data.keys().hasOnly(['firstName', 'lastName', 'email', 'subject', 'message', 'status', 'createdAt']) &&
+        isValidString(data.firstName, 1, 80) &&
+        isValidString(data.lastName, 1, 80) &&
+        isValidString(data.email, 3, 120) &&
+        isValidString(data.subject, 1, 150) &&
+        isValidString(data.message, 1, 2000) &&
+        data.status in ['New', 'Read', 'Replied'] &&
+        isValidString(data.createdAt, 1, 100);
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      // Anyone can create an order with valid initial fields
+      allow create: if isValidOrder(incoming()) && incoming().status == 'Pending';
+      // Customer with order document ID can view single order for live tracking
+      allow get: if true;
+      // List, update, delete restricted to admin
+      allow list, delete: if isAdmin();
+      allow update: if isAdmin() && isValidOrder(incoming());
+    }
+
+    // Reservations Collection
+    match /reservations/{reservationId} {
+      // Anyone can submit a table reservation
+      allow create: if isValidReservation(incoming()) && incoming().status == 'Pending';
+      // Only admin can read, list, update or delete reservations
+      allow read, write: if isAdmin();
+    }
+
+    // Contact Messages Collection
+    match /messages/{messageId} {
+      // Anyone can send an inquiry
+      allow create: if isValidMessage(incoming()) && incoming().status == 'New';
+      // Only admin can read, list, update or delete messages
+      allow read, write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "Customer food delivery order",
+      "type": "object",
+      "properties": {
+        "orderNumber": {
+          "type": "number",
+          "description": "Unique order tracking number"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Customer full name"
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Customer contact phone"
+        },
+        "address": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Delivery address"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Special delivery instructions"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of ordered dishes and variants"
+        },
+        "total": {
+          "type": "number",
+          "description": "Order total in Euros"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Payment method"
+        },
+        "mode": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Delivery or Pickup mode"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Preparing", "Delivered", "Cancelled"],
+          "description": "Current order lifecycle status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Order creation timestamp"
+        }
+      },
+      "required": [
+        "orderNumber",
+        "name",
+        "phone",
+        "address",
+        "items",
+        "total",
+        "paymentMethod",
+        "mode",
+        "status",
+        "createdAt"
+      ]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "description": "Table reservation request",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Guest name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 120,
+          "description": "Guest email"
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Guest phone number"
+        },
+        "guests": {
+          "type": "string",
+          "maxLength": 10,
+          "description": "Number of guests"
+        },
+        "date": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Reservation date"
+        },
+        "time": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Reservation time"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Special table requests"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Confirmed", "Cancelled"],
+          "description": "Reservation status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Submission timestamp"
+        }
+      },
+      "required": [
+        "name",
+        "email",
+        "phone",
+        "guests",
+        "date",
+        "time",
+        "status",
+        "createdAt"
+      ]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Contact form inquiry message",
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Sender first name"
+        },
+        "lastName": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Sender last name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 120,
+          "description": "Sender email"
+        },
+        "subject": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Inquiry subject"
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Message content"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["New", "Read", "Replied"],
+          "description": "Inquiry status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Message submission timestamp"
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName",
+        "email",
+        "subject",
+        "message",
+        "status",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": {
+        "$ref": "#/entities/Order"
+      },
+      "description": "Customer food delivery orders"
+    },
+    "/reservations/{reservationId}": {
+      "schema": {
+        "$ref": "#/entities/Reservation"
+      },
+      "description": "Table reservation requests"
+    },
+    "/messages/{messageId}": {
+      "schema": {
+        "$ref": "#/entities/Message"
+      },
+      "description": "Customer inquiries and messages"
+    }
+  }
+}
